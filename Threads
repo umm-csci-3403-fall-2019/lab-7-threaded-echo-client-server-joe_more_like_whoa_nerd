@@ -1,0 +1,41 @@
+Threads
+
+Lightweight processes that allow us to write asynchronous code and take advantage of multiple cores/processors
+	* Recall, that with the echo/client server lab, many clients could have talked to the server at the same time. 
+	* ...That wouldn't work because whoever talks first has the connection, until THEY (the first client) closes it.
+	* ...we don't want this. This a "synchronous" process. We want an "asynchronous process".
+
+"Lightweight processes..."
+	* Processes have their own memory space 
+	* Threads share a memory space...which is cheap and quick
+
+Server threading
+	*interface: Runnable
+		* requires 1 method... 'run'
+	*class thread
+		* Runnable r = new RunnableThing(...)
+		* constructor: Thread t = new Thread(r);
+		* t.start() .....DO NOT CALL 'RUN' DIRECTLY
+
+T.start returns nearly immediately, and the 'r.run' method that's inside, runs 'in parallel' with T.start (and beyond, b/c t.start will probably finish before r.run)
+
+In the echo/client server, the echo.socket(s), is basically passed into the construcotr of some class (runnable), which is uses to make a thread.
+	* That thread works with a socket. The threads are garbage collected when they are finished.
+
+====================================================================================
+
+CLient THreading
+
+while not done{
+	read from stdin
+	write to socket.outputStream
+	read from socket.inputStream
+	write to stdout
+}
+
+We could in theory divide the first/second half into different threads.
+
+DO NOT CLOSE THE OUTPUT-STREAM AFTER GETTING A -1.
+	* Instead, indicate that it's done somehow. There is a method of an outputstrean that does this (Look at the DOCS).
+		* Then the server stream also has to say I'm done. Then the final inputStrean to the client.
+		* you probably want to flush before saying "I'm done"
