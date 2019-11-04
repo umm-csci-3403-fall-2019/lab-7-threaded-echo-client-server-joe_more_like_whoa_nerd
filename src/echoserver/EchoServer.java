@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EchoServer {
 
@@ -12,6 +14,10 @@ public class EchoServer {
 
     public static void main(String[] args) {
         try {
+
+            // Create the executor service. Using an arbitrary maximum threads of 3.
+            ExecutorService threadPool = Executors.newFixedThreadPool(3);
+
             // Start listening on the specified port
             ServerSocket serverSocket = new ServerSocket(portNumber);
 
