@@ -56,7 +56,6 @@ public class EchoClient {
             server = "127.0.0.1";
         } else {
             server = args[0];
-            server = args[0];
         }
 
 
@@ -66,41 +65,19 @@ public class EchoClient {
             Socket echoSocket = new Socket(server, portNumber);
 
             // Grab the input/output streams so we can write/read directly to/from them
-            OutputStream os = echoSocket.getOutputStream();
-            InputStream is = echoSocket.getInputStream();
+            os = echoSocket.getOutputStream();
+            is = echoSocket.getInputStream();
 
             new ToServerThread().start();
             new FromServerThread().start();
-
-//
-//            // While there is a valid input to be received from System.in...
-//            while ( (c = System.in.read()) != -1) {
-//
-//                // Write it and send it all together, immediately
-//                os.write(c);
-//                os.flush();
-//
-//                // Read the response and response and output it all immediately.
-//                responseByte = is.read();
-//                System.out.write(responseByte);
-//                System.out.flush();
-//            }
-//
-//            // Feedback for the user. This is commented out so the tests pass.
-////            System.out.println("Time to close.");
-//
-//            // Close everything when we are done.
-//            os.close();
-//            is.close();
-//            echoSocket.close();
         }
 //
-            // Very minimal error handling.
+        // Very minimal error handling.
         catch(Exception e){
-                System.err.println("Exception:  " + e);
-            }
+            System.err.println("Exception:  " + e);
         }
     }
+}
 
 
 
