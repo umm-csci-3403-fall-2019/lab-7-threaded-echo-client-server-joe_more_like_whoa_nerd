@@ -1,80 +1,77 @@
 package echoserver;
-import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
 public class EchoClient {
 
-    public static InputStream is;
-    public static OutputStream os;
-    public static Socket echoSocket;
     public static final int portNumber = 6013;
 
-    public static class ToServerThread extends Thread {
+    public static void main(String[] args) throws IOException{
+        EchoClient client = new EchoClient();
+        client.start();
+    }
+
+    private void start() throws IOException {
+        // Establish connection with the server on the specified portnumber
+        Socket echoSocket = new Socket("localhost", portNumber);
+
+        ToServerThread t = new ToServerThread(echoSocket);
+        FromServerThread f = new FromServerThread(echoSocket);
+
+        Thread toThread = new Thread(t);
+        Thread fromThread = new Thread(f);
+
+        toThread.start();
+        fromThread.start();
+    }
+
+    class ToServerThread implements Runnable {
         int c;
+
+        private Socket output;
+        public ToServerThread(Socket input) {
+            output = input;
+        }
+
         public void run() {
             try {
+                OutputStream os = output.getOutputStream();
                 while ((c = System.in.read()) != -1) {
                     os.write(c);
-                    os.flush();
                 }
 
-                System.out.println("toServerThread: Shutting down echoSocket....");
-                echoSocket.shutdownOutput();
+                os.flush();
+                output.shutdownOutput();
             }
             // Minimal exception handling
-            catch (Exception e){
+            catch (IOException e){
                 e.printStackTrace();
             }
         }
     }
 
-    public static class FromServerThread extends Thread {
+    public static class FromServerThread implements Runnable {
         int responseByte;
+
+        private Socket input;
+        public FromServerThread(Socket socket) {
+            input = socket;
+        }
+
         public void run() {
             try {
+                InputStream is = input.getInputStream();
                 while ((responseByte = is.read()) != -1) {
                     System.out.write(responseByte);
-                    System.out.flush();
                 }
-                System.out.println("fromServerThread: closing echoSocket now.");
-                echoSocket.close();
+                System.out.flush();
+                input.shutdownInput();
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public static void main(String[] args) {
-
-        String server;
-
-        // Use "127.0.0.1", i.e., localhost, if no server is specified.
-        if (args.length == 0) {
-            server = "127.0.0.1";
-        } else {
-            server = args[0];
-        }
-
-
-        // Be prepared to handle any general exception
-        try {
-            // Establish connection with the server on the specified portnumber
-            Socket echoSocket = new Socket(server, portNumber);
-
-            // Grab the input/output streams so we can write/read directly to/from them
-            os = echoSocket.getOutputStream();
-            is = echoSocket.getInputStream();
-
-            new ToServerThread().start();
-            new FromServerThread().start();
-        }
-//
-        // Very minimal error handling.
-        catch(Exception e){
-            System.err.println("Exception:  " + e);
         }
     }
 }
